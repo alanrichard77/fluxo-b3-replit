@@ -21,25 +21,21 @@ def parse_valor(valor):
     if v in ['', '-', 'nan']: return 0.0
     return float(v)
 
-def gerar_grafico(data_inicio=None, data_fim=None):
+def gerar_grafico():
     df = pd.read_csv("https://raw.githubusercontent.com/alanrichard5/dados/main/fluxo-b3.csv")
     df.columns = [normalize_colname(c) for c in df.columns]
-    df['data'] = pd.to_datetime(df['data'])
+    df['data'] = pd.to_datetime(df['data'], errors='coerce', dayfirst=True)
+
     for col in ['estrangeiro', 'institucional', 'pessoa_fisica', 'if']:
         df[col] = df[col].apply(parse_valor)
     df['ibov'] = df['ibov'].apply(lambda x: float(str(x).replace('.', '').replace(',', '.')))
 
-    # Filtro por data
-    if data_inicio and data_fim:
-        df = df[(df['data'] >= pd.to_datetime(data_inicio)) & (df['data'] <= pd.to_datetime(data_fim))]
-
-    # Acumula valores
     df['estrangeiro_acum'] = df['estrangeiro'].cumsum()
     df['institucional_acum'] = df['institucional'].cumsum()
     df['pessoa_fisica_acum'] = df['pessoa_fisica'].cumsum()
     df['if_acum'] = df['if'].cumsum()
 
-    # Resumo mensal
+    # Resumo mês a mês
     df['mes'] = df['data'].dt.to_period('M').astype(str)
     resumo_mensal = {}
     for mes, grupo in df.groupby('mes'):
@@ -56,7 +52,6 @@ def gerar_grafico(data_inicio=None, data_fim=None):
             'maior_saida': maior_saida
         }
 
-    # Geração do gráfico
     fig, ax1 = plt.subplots(figsize=(10, 5))
     ax2 = ax1.twinx()
     ax1.plot(df['data'], df['estrangeiro_acum'], label='Estrangeiro', linewidth=2)
@@ -91,13 +86,8 @@ def gerar_grafico(data_inicio=None, data_fim=None):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    if request.method == 'POST':
-        data_inicio = request.form.get('data_inicio')
-        data_fim = request.form.get('data_fim')
-        imagem, resumo, resumo_mensal, last_date = gerar_grafico(data_inicio, data_fim)
-        return render_template('home.html', imagem=imagem, resumo=resumo, resumo_mensal=resumo_mensal, last_date=last_date)
-
-    return render_template('home.html', imagem=None, resumo={}, resumo_mensal={}, last_date=None)
+    imagem, resumo, resumo_mensal, last_date = gerar_grafico()
+    return render_template('home.html', imagem=imagem, resumo=resumo, resumo_mensal=resumo_mensal, last_date=last_date)
 
 if __name__ == '__main__':
     app.run(debug=True)
