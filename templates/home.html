@@ -12,11 +12,7 @@
 </header>
 
 <main class="max-w-7xl mx-auto px-4 py-10 space-y-10">
-    
-    <form method="POST" class="flex flex-wrap justify-center gap-4 mb-6">
-        <input type="date" name="data_inicio" class="bg-slate-800 p-2 rounded text-white" required>
-        <input type="date" name="data_fim" class="bg-slate-800 p-2 rounded text-white" required>
-
+    <form method="POST" class="flex justify-center mb-6">
         <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition">
             🔄 Atualizar Gráfico
         </button>
@@ -52,16 +48,6 @@
         <p><strong>Fonte:</strong> B3 e Dados de Mercado • Último dado de fluxo: {{ last_date if last_date else '-' }}</p>
         <p><a href="https://www.instagram.com/alan_richard" class="text-blue-400 hover:underline" target="_blank">@alan_richard</a> – Dashboard Fluxo de Investidores • Valores em bilhões de reais</p>
     </footer>
-
-    <section class="bg-slate-800 p-4 rounded-xl shadow space-y-3 mt-10">
-        <h2 class="text-lg font-bold text-white">Resumo Mês a Mês</h2>
-        {% for mes, info in resumo_mensal.items() %}
-        <div class="text-sm text-slate-300">
-            <strong>{{ mes }}</strong>: Maior entrada - {{ info.maior_entrada }}, Maior saída - {{ info.maior_saida }}
-        </div>
-        {% endfor %}
-    </section>
-    </main>
-
+</main>
 </body>
 </html>
